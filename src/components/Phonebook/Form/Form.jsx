@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import shortid from 'shortid';
 import style from './_form.module.scss';
+import phoneActions from '../../../redux/Phonebook/phonebook-action';
 
-export default class Form extends Component {
+class Form extends Component {
 	state = {
 		name: '',
 		number: ''
@@ -19,12 +21,18 @@ export default class Form extends Component {
 
 	handleSubmit = (event) => {
 		event.preventDefault();
-		// console.log(this.state.name);
 
-		if (this.props.checkContact(this.state.name)) {
-			this.props.addContact({ id: shortid.generate(), ...this.state });
-			this.reset();
+		const duplicate = this.props.phonebook.contacts.find(
+			(contact) => contact.name === this.state.name
+		);
+
+		if (duplicate) {
+			alert(`${this.state.name} is already in contacts.`);
+		} else {
+			this.props.onSubmit(this.state);
 		}
+
+		this.reset();
 	};
 
 	reset = () => {
@@ -65,3 +73,13 @@ export default class Form extends Component {
 		);
 	}
 }
+
+const mapStateToProps = (state) => {
+	return state;
+};
+
+const mapDispatchToProps = (dispatch) => ({
+	onSubmit: (text) => dispatch(phoneActions.addContact(text))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Form);
